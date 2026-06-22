@@ -1,4 +1,4 @@
-# sports-bot
+# telegram-sports-bot
 A Telegram bot for live sports scores, player bios/stats, and shared link tracking. 
 Running 24/7 on Oracle Cloud Free Tier.
 
