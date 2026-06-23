@@ -16,10 +16,11 @@ Running 24/7 on Oracle Cloud Free Tier.
 - Deployed on Oracle Cloud Free Tier ARM instance
 
 ## Architecture
+```
 [bot.py] → [sports_data.py / espn_api.py] → [ESPN APIs]
                   ↓
             [database.py] → [SQLite]
-
+```
 ## Example commands
 /score lakers           - get current Lakers score
 /sb nfl                 - full NFL scoreboard for the day
