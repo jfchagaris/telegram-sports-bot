@@ -2,3 +2,5 @@
 __pycache__
 test.db
 shared_links.db
+venv/
+ESPN_player_ids.db
