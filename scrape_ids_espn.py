@@ -25,8 +25,7 @@ for league, sport in sports_dict.items():
         for i in data["items"]:
             id = i["id"]
             name = i["displayName"]
-            #skip non player entries
-            if name.strip().startswith("["):
+            if name.strip().startswith("["): #skip non player entries
                 continue
             sql = "INSERT INTO ids(id, name, sport, league) VALUES (?, ?, ?, ?)"
             params = (id, name, sport, league)

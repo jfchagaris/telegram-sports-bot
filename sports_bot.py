@@ -24,6 +24,7 @@ async def standings(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     result = get_nhl_standings(user_input)
     await update.message.reply_text(f"```\n{result}\n```", parse_mode='MarkdownV2')
     # await update.message.reply_text(get_nhl_standings(user_input))
+
 async def score_board(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     split = update.message.text.split()
     user_input = split[1].lower()
@@ -110,7 +111,7 @@ async def query_links(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
 
 async def bio(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     split = update.message.text.split()
-    valid_leagues = ["mlb", "nfl", "nhl"]
+    valid_leagues = ["mlb", "nfl", "nhl"] #safe to add NBA whenever, scrape logic will scrape all 4 now.
     league = None
     for word in split[1:]:
         if word.lower() in valid_leagues:
@@ -129,6 +130,7 @@ async def bio(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         else:
             await update.message.reply_text(f"Searching {league} players... this may take a while")
             await update.message.reply_text(player_search(player, league=league))
+
 async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     split = update.message.text.split()
     player = split[1:]

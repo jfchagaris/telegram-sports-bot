@@ -68,7 +68,7 @@ def player_search(player, league=None, sport=None):
     #print(id)
     if id is not None:
         player_id, player_sport, player_league = id #id contains 3 elements from the db_lookup()
-    else: #bot asks to enter a legue
+    else: #bot asks to enter a legue to build the link
         sports_map = {
             "mlb": "baseball",
             "nfl": "football",
@@ -221,14 +221,14 @@ def espn_scoreboard(team=None, league=None):
     if league is not None:
         day_score_board = ""
         final_games = ""
-        if league in leagues_and_sports:
+        if league in leagues_and_sports: #allows for "graceful" error if league entered isnt in dict
             sport = leagues_and_sports[league]
             url = f"https://site.api.espn.com/apis/site/v2/sports/{sport}/{league}/scoreboard"
             response = requests.get(url)
             data = response.json()
             league_data = data['leagues']
             events_data = data['events']
-            try:
+            try: #try for week number, for NFL. NFL groups schedule by weeks 
                 week = data['week']['number']
                 week = f"week {week}"
             except:
@@ -262,6 +262,8 @@ def espn_scoreboard(team=None, league=None):
                         score_board += f"{broadcast}"
                         day_score_board += f"\n{score_board}"
                     #day_score_board += f"\n{score_board}" #team_two)
+        else:
+            return f"unknown league: {league}"
         day_score_board += final_games
             #day_score_board += final_games
         #print (day_score_board)
