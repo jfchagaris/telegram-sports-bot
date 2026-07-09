@@ -221,49 +221,48 @@ def espn_scoreboard(team=None, league=None):
     if league is not None:
         day_score_board = ""
         final_games = ""
-        if league in leagues_and_sports: #allows for "graceful" error if league entered isnt in dict
-            sport = leagues_and_sports[league]
-            url = f"https://site.api.espn.com/apis/site/v2/sports/{sport}/{league}/scoreboard"
-            response = requests.get(url)
-            data = response.json()
-            league_data = data['leagues']
-            events_data = data['events']
-            try: #try for week number, for NFL. NFL groups schedule by weeks 
-                week = data['week']['number']
-                week = f"week {week}"
-            except:
-                week = data['day']['date']
-                pass
-            day_score_board += f"scoreboard for: {week}"
-            #print(week)
-            for event in events_data:
-                for c in event['competitions']:
-                    team_one = c['competitors'][0]
-                    team_two = c['competitors'][1]
-                    if team_one['homeAway'] == 'home':
-                        home_team = team_one
-                        away_team = team_two
-                    else:
-                        away_team = team_one
-                        home_team = team_two
-                    home_team_name = home_team['team']['shortDisplayName']
-                    away_team_name = away_team['team']['shortDisplayName']
-                    home_team_abbrev = home_team['team']['abbreviation']
-                    away_team_abbrev = away_team['team']['abbreviation']
-                    broadcast = c['broadcast']
-                    home_score = home_team['score']
-                    away_score = away_team['score']
-                    status = c["status"]["type"]["shortDetail"]
-                    score_board = (f"{away_team_abbrev} {away_score} @ {home_team_abbrev} {home_score} - {status} ")
-                    if status == 'Final' or status == 'Final/OT' or status == 'Final/SO':
-                        #score_board = score_board
-                        final_games += f"\n{score_board}"
-                    else:
-                        score_board += f"{broadcast}"
-                        day_score_board += f"\n{score_board}"
-                    #day_score_board += f"\n{score_board}" #team_two)
-        else:
+        if league not in leagues_and_sports:
             return f"unknown league: {league}"
+        sport = leagues_and_sports[league]
+        url = f"https://site.api.espn.com/apis/site/v2/sports/{sport}/{league}/scoreboard"
+        response = requests.get(url)
+        data = response.json()
+        league_data = data['leagues']
+        events_data = data['events']
+        try: #try for week number, for NFL. NFL groups schedule by weeks 
+            week = data['week']['number']
+            week = f"week {week}"
+        except:
+            week = data['day']['date']
+            #pass
+        day_score_board += f"scoreboard for: {week}"
+            #print(week)
+        for event in events_data:
+            for c in event['competitions']:
+                team_one = c['competitors'][0]
+                team_two = c['competitors'][1]
+                if team_one['homeAway'] == 'home':
+                    home_team = team_one
+                    away_team = team_two
+                else:
+                    away_team = team_one
+                    home_team = team_two
+                home_team_name = home_team['team']['shortDisplayName']
+                away_team_name = away_team['team']['shortDisplayName']
+                home_team_abbrev = home_team['team']['abbreviation']
+                away_team_abbrev = away_team['team']['abbreviation']
+                broadcast = c['broadcast']
+                home_score = home_team['score']
+                away_score = away_team['score']
+                status = c["status"]["type"]["shortDetail"]
+                score_board = (f"{away_team_abbrev} {away_score} @ {home_team_abbrev} {home_score} - {status} ")
+                if status == 'Final' or status == 'Final/OT' or status == 'Final/SO':
+                    #score_board = score_board
+                    final_games += f"\n{score_board}"
+                else:
+                    score_board += f"{broadcast}"
+                    day_score_board += f"\n{score_board}"
+                    #day_score_board += f"\n{score_board}" #team_two)
         day_score_board += final_games
             #day_score_board += final_games
         #print (day_score_board)
