@@ -1,6 +1,28 @@
 import requests
 import sqlite3
 
+DIVISION_TO_LEAGUE = {
+    "nl east": ("mlb", "National League East"),
+    "nl central": ("mlb", "National League Central"),
+    "nl west": ("mlb", "National League West"),
+    "al east": ("mlb", "American League East"),
+    "al west": ("mlb", "American League West"),
+    "al central": ("mlb", "American League Central"),
+    "afc east": ("nfl", "AFC East"),
+    "afc north": ("nfl", "AFC North"),
+    "afc south": ("nfl", "AFC South"),
+    "nfc east": ("nfl", "NFC East"),
+    "nfc north": ("nfl", "NFC North"),
+    "nfc south": ("nfl", "NFC South"), 
+}
+
+LEAGUES_AND_SPORTS = {
+    "nfl": "football",
+    "nhl": "hockey",
+    "mlb": "baseball",
+    "nba": "basketball"
+}
+
 def player_stats(player, league=None, sport=None):
     id = db_lookup(player)
     if id is not None:
@@ -210,20 +232,14 @@ def espn_scoreboard(team=None, league=None):
         "Caps": "Capitals",
         "Pats": "Patriots"
     }
-    leagues_and_sports = {
-        "nfl": "football",
-        "nhl": "hockey",
-        "mlb": "baseball",
-        "nba": "basketball"
-    }
     if team in team_alt_name:
         team = team_alt_name[team]
     if league is not None:
         day_score_board = ""
         final_games = ""
-        if league not in leagues_and_sports:
+        if league not in LEAGUES_AND_SPORTS:
             return f"unknown league: {league}"
-        sport = leagues_and_sports[league]
+        sport = LEAGUES_AND_SPORTS[league]
         url = f"https://site.api.espn.com/apis/site/v2/sports/{sport}/{league}/scoreboard"
         response = requests.get(url)
         data = response.json()
@@ -271,7 +287,7 @@ def espn_scoreboard(team=None, league=None):
         # call leagues scoreboard
     if team is not None:
         team_scoreboard = ""
-        for league, sport in leagues_and_sports.items():
+        for league, sport in LEAGUES_AND_SPORTS.items():
             url = f"https://site.api.espn.com/apis/site/v2/sports/{sport}/{league}/scoreboard"
             print(url)
             response = requests.get(url)
@@ -317,34 +333,59 @@ def espn_scoreboard(team=None, league=None):
             return team_scoreboard
         
 def espn_standings(conference=None, division=None):
-    base_url = "https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/seasons/2025/types/2/groups"
+    division = division.strip().lower()
+    if division not in DIVISION_TO_LEAGUE:
+        return f"unknown division: {division}"
+    league, canonical = DIVISION_TO_LEAGUE[division]
+    sport = LEAGUES_AND_SPORTS[league]
+    base_url = f"https://site.api.espn.com/apis/v2/sports/{sport}/{league}/standings?level=3"
     response = requests.get(base_url).json()
-    for i in response['items']:
-        conf = requests.get(i['$ref']).json()
-        if conference == conf['abbreviation']:
-            standings_url = conf['standings']['$ref']
-            print(standings_url)
-            standings_call = requests.get(standings_url).json()
-            items = standings_call['items']
-            for i in items:
-                if i['name'] == "playoff":
-                    overall_standings_url = i['$ref']
-                    conf_standings = requests.get(overall_standings_url).json()
-                    for t in conf_standings['standings']:
-                        team_list = t['team']
-                        team_url = team_list['$ref']
-                        record = t['records']
-                        for r in record:
-                            if r['name'] == 'overall':
-                                record_value = r['displayValue']
-                                stats = r['stats']
-                                print(stats[0])
+    standing_list = []
+    def walk_standings(node):
+        if node.get("name") == canonical:
+            standing_list.append(f"{canonical} standings")
+            for entry in node.get("standings", {}).get("entries", []):
+                team = entry.get("team", {}).get("shortDisplayName")
+                record = None
+                gb = None
+                for s in entry["stats"]:
+                    if s["name"] == "overall":
+                        record = s["displayValue"]
+                    elif s["name"] == "gamesBehind":
+                        gb = s["displayValue"]
+                standing_list.append(f"{team} {record} GB: {gb}")
+                            #entry.get("team," {}).get("shortDisplayName" ""))
+        for child in node.get("children", []):
+            walk_standings(child)
+    walk_standings(response)
+    return "\n".join(standing_list)
+
+    # for i in response['items']:
+    #     conf = requests.get(i['$ref']).json()
+    #     if conference == conf['abbreviation']:
+    #         standings_url = conf['standings']['$ref']
+    #         print(standings_url)
+    #         standings_call = requests.get(standings_url).json()
+    #         items = standings_call['items']
+    #         for i in items:
+    #             if i['name'] == "playoff":
+    #                 overall_standings_url = i['$ref']
+    #                 conf_standings = requests.get(overall_standings_url).json()
+    #                 for t in conf_standings['standings']:
+    #                     team_list = t['team']
+    #                     team_url = team_list['$ref']
+    #                     record = t['records']
+    #                     for r in record:
+    #                         if r['name'] == 'overall':
+    #                             record_value = r['displayValue']
+    #                             stats = r['stats']
+    #                             print(stats[0])
 
 
 
 
 if __name__ == "__main__":
-    espn_standings("NFC")
+    print(espn_standings(division="NL central"))
 # my_dict = {"nfl": "football", "nhl": "hockey"}
 # for item, sport in my_dict.items():
 #     print(item, sport)
