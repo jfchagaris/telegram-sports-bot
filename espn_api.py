@@ -11,9 +11,11 @@ DIVISION_TO_LEAGUE = {
     "afc east": ("nfl", "AFC East"),
     "afc north": ("nfl", "AFC North"),
     "afc south": ("nfl", "AFC South"),
+    "afc west": ("nfl", "AFC West"),
     "nfc east": ("nfl", "NFC East"),
     "nfc north": ("nfl", "NFC North"),
-    "nfc south": ("nfl", "NFC South"), 
+    "nfc south": ("nfl", "NFC South"),
+    "nfc west": ("nfl", "NFC West"),
 }
 
 LEAGUES_AND_SPORTS = {
@@ -332,7 +334,7 @@ def espn_scoreboard(team=None, league=None):
         else:
             return team_scoreboard
         
-def espn_standings(conference=None, division=None):
+def espn_standings(division=None):
     division = division.strip().lower()
     if division not in DIVISION_TO_LEAGUE:
         return f"unknown division: {division}"
@@ -359,30 +361,6 @@ def espn_standings(conference=None, division=None):
             walk_standings(child)
     walk_standings(response)
     return "\n".join(standing_list)
-
-    # for i in response['items']:
-    #     conf = requests.get(i['$ref']).json()
-    #     if conference == conf['abbreviation']:
-    #         standings_url = conf['standings']['$ref']
-    #         print(standings_url)
-    #         standings_call = requests.get(standings_url).json()
-    #         items = standings_call['items']
-    #         for i in items:
-    #             if i['name'] == "playoff":
-    #                 overall_standings_url = i['$ref']
-    #                 conf_standings = requests.get(overall_standings_url).json()
-    #                 for t in conf_standings['standings']:
-    #                     team_list = t['team']
-    #                     team_url = team_list['$ref']
-    #                     record = t['records']
-    #                     for r in record:
-    #                         if r['name'] == 'overall':
-    #                             record_value = r['displayValue']
-    #                             stats = r['stats']
-    #                             print(stats[0])
-
-
-
 
 if __name__ == "__main__":
     print(espn_standings(division="NL central"))
