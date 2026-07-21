@@ -70,13 +70,8 @@ def player_search(player, league=None, sport=None):
     if id is not None:
         player_id, player_sport, player_league = id #id contains 3 elements from the db_lookup()
     else: #bot asks to enter a legue to build the link
-        sports_map = {
-            "mlb": "baseball",
-            "nfl": "football",
-            "nhl": "hockey",
-        }
-        if league in sports_map:
-            sport = sports_map[league]
+        if league in LEAGUES_AND_SPORTS:
+            sport = LEAGUES_AND_SPORTS[league]
         print(f"Searching {league}")
         url = f"https://sports.core.api.espn.com/v3/sports/{sport}/{league}/athletes/"
         page_count = 1
