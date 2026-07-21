@@ -21,3 +21,15 @@ DIVISION_TO_LEAGUE = {
     "nfc south": ("nfl", "NFC South"),
     "nfc west": ("nfl", "NFC West"),
 }
+
+team_alt_name = {
+    "Leafs": "Maple Leafs",
+    "Habs": "Canadiens",
+    "Rags": "Rangers",
+    "Devs": "Devils",
+    "Isles": "Islanders",
+    "Avs": "Avalanche",
+    "Pens": "Penguins",
+    "Caps": "Capitals",
+    "Pats": "Patriots"
+}

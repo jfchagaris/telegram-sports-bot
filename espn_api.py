@@ -1,6 +1,6 @@
 import requests
 import sqlite3
-from leagues import LEAGUES_AND_SPORTS, DIVISION_TO_LEAGUE
+from leagues import LEAGUES_AND_SPORTS, DIVISION_TO_LEAGUE, team_alt_name
 
 def player_stats(player, league=None, sport=None):
     id = db_lookup(player)
@@ -200,17 +200,6 @@ def db_lookup_all_ids(player):
     return query
 
 def espn_scoreboard(team=None, league=None):
-    team_alt_name = {
-        "Leafs": "Maple Leafs",
-        "Habs": "Canadiens",
-        "Rags": "Rangers",
-        "Devs": "Devils",
-        "Isles": "Islanders",
-        "Avs": "Avalanche",
-        "Pens": "Penguins",
-        "Caps": "Capitals",
-        "Pats": "Patriots"
-    }
     if team in team_alt_name:
         team = team_alt_name[team]
     if league is not None:
