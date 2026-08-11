@@ -1,29 +1,6 @@
 import requests
 import sqlite3
-
-DIVISION_TO_LEAGUE = {
-    "nl east": ("mlb", "National League East"),
-    "nl central": ("mlb", "National League Central"),
-    "nl west": ("mlb", "National League West"),
-    "al east": ("mlb", "American League East"),
-    "al west": ("mlb", "American League West"),
-    "al central": ("mlb", "American League Central"),
-    "afc east": ("nfl", "AFC East"),
-    "afc north": ("nfl", "AFC North"),
-    "afc south": ("nfl", "AFC South"),
-    "afc west": ("nfl", "AFC West"),
-    "nfc east": ("nfl", "NFC East"),
-    "nfc north": ("nfl", "NFC North"),
-    "nfc south": ("nfl", "NFC South"),
-    "nfc west": ("nfl", "NFC West"),
-}
-
-LEAGUES_AND_SPORTS = {
-    "nfl": "football",
-    "nhl": "hockey",
-    "mlb": "baseball",
-    "nba": "basketball"
-}
+from leagues import LEAGUES_AND_SPORTS, DIVISION_TO_LEAGUE, team_alt_name
 
 def player_stats(player, league=None, sport=None):
     id = db_lookup(player)
@@ -93,13 +70,8 @@ def player_search(player, league=None, sport=None):
     if id is not None:
         player_id, player_sport, player_league = id #id contains 3 elements from the db_lookup()
     else: #bot asks to enter a legue to build the link
-        sports_map = {
-            "mlb": "baseball",
-            "nfl": "football",
-            "nhl": "hockey",
-        }
-        if league in sports_map:
-            sport = sports_map[league]
+        if league in LEAGUES_AND_SPORTS:
+            sport = LEAGUES_AND_SPORTS[league]
         print(f"Searching {league}")
         url = f"https://sports.core.api.espn.com/v3/sports/{sport}/{league}/athletes/"
         page_count = 1
@@ -223,17 +195,6 @@ def db_lookup_all_ids(player):
     return query
 
 def espn_scoreboard(team=None, league=None):
-    team_alt_name = {
-        "Leafs": "Maple Leafs",
-        "Habs": "Canadiens",
-        "Rags": "Rangers",
-        "Devs": "Devils",
-        "Isles": "Islanders",
-        "Avs": "Avalanche",
-        "Pens": "Penguins",
-        "Caps": "Capitals",
-        "Pats": "Patriots"
-    }
     if team in team_alt_name:
         team = team_alt_name[team]
     if league is not None:
@@ -338,7 +299,11 @@ def espn_standings(division=None):
     division = division.strip().lower()
     if division not in DIVISION_TO_LEAGUE:
         return f"unknown division: {division}"
-    league, canonical = DIVISION_TO_LEAGUE[division]
+    options = DIVISION_TO_LEAGUE[division]
+    if len(options) > 1:
+        return f"{division} is in 2 leagues."
+    league, canonical = options[0]
+    #league, canonical = DIVISION_TO_LEAGUE[division]
     sport = LEAGUES_AND_SPORTS[league]
     base_url = f"https://site.api.espn.com/apis/v2/sports/{sport}/{league}/standings?level=3"
     response = requests.get(base_url).json()
@@ -351,10 +316,16 @@ def espn_standings(division=None):
                 record = None
                 gb = None
                 for s in entry["stats"]:
-                    if s["name"] == "overall":
+                    if s["name"] == "overall": #overall record
                         record = s["displayValue"]
                     elif s["name"] == "gamesBehind":
                         gb = s["displayValue"]
+                    elif s["name"] == "wins":
+                        wins = s["displayValue"]
+                    elif s["name"] == "losses":
+                        losses = s["displayValue"]
+                if record is None: #for NBA
+                    record = f"{wins}-{losses}"
                 standing_list.append(f"{team} {record} GB: {gb}")
                             #entry.get("team," {}).get("shortDisplayName" ""))
         for child in node.get("children", []):
