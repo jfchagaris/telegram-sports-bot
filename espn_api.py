@@ -303,7 +303,6 @@ def espn_standings(division=None):
     if len(options) > 1:
         return f"{division} is in 2 leagues."
     league, canonical = options[0]
-    #league, canonical = DIVISION_TO_LEAGUE[division]
     sport = LEAGUES_AND_SPORTS[league]
     base_url = f"https://site.api.espn.com/apis/v2/sports/{sport}/{league}/standings?level=3"
     response = requests.get(base_url).json()
@@ -315,6 +314,8 @@ def espn_standings(division=None):
                 team = entry.get("team", {}).get("shortDisplayName")
                 record = None
                 gb = None
+                wins = None
+                losses = None
                 for s in entry["stats"]:
                     if s["name"] == "overall": #overall record
                         record = s["displayValue"]
@@ -326,8 +327,10 @@ def espn_standings(division=None):
                         losses = s["displayValue"]
                 if record is None: #for NBA
                     record = f"{wins}-{losses}"
-                standing_list.append(f"{team} {record} GB: {gb}")
-                            #entry.get("team," {}).get("shortDisplayName" ""))
+                if sport == "hockey": #hockey doesnt typically use games back
+                    standing_list.append(f"{team} {record}")
+                else:
+                    standing_list.append(f"{team} {record} GB: {gb}")
         for child in node.get("children", []):
             walk_standings(child)
     walk_standings(response)
