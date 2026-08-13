@@ -4,9 +4,8 @@ from dotenv import load_dotenv
 import os
 from datetime import datetime
 from zoneinfo import ZoneInfo
-from sports_data import get_nhl_score, get_nhl_standings
 from database import insert_private_link, initalize_db, insert_group_link, query_shared_links
-from espn_api import player_search, db_lookup, espn_scoreboard, player_stats
+from espn_api import player_search, db_lookup, espn_scoreboard, player_stats, espn_standings
 
 load_dotenv()
 async def score(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -18,12 +17,10 @@ async def score(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 async def standings(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     split = update.message.text.split()
-    user_input = split[1].lower()
+    user_input = " ".join(split[1:])
     print(update.message.text)
     print(update.effective_user)
-    result = get_nhl_standings(user_input)
-    await update.message.reply_text(f"```\n{result}\n```", parse_mode='MarkdownV2')
-    # await update.message.reply_text(get_nhl_standings(user_input))
+    await update.message.reply_text(espn_standings(user_input))
 
 async def score_board(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     split = update.message.text.split()
