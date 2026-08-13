@@ -296,6 +296,8 @@ def espn_scoreboard(team=None, league=None):
             return team_scoreboard
         
 def espn_standings(division=None):
+    if not division:
+        return f"Enter a division"
     division = division.strip().lower()
     if division not in DIVISION_TO_LEAGUE:
         return f"unknown division: {division}"
