@@ -5,3 +5,4 @@ shared_links.db
 venv/
 ESPN_player_ids.db
 scratch/
+.vscode/
