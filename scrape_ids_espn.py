@@ -24,7 +24,10 @@ for league, sport in sports_dict.items():
         data = response.json()
         for i in data["items"]:
             id = i["id"]
-            name = i["displayName"]
+            try:
+                name = i["displayName"]
+            except KeyError:
+                name = f"{i["firstName"]} {i["lastName"]}"
             if name.strip().startswith("["): #skip non player entries
                 continue
             sql = "INSERT OR IGNORE INTO ids(id, name, sport, league) VALUES (?, ?, ?, ?)"
