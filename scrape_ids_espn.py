@@ -27,7 +27,7 @@ for league, sport in sports_dict.items():
             name = i["displayName"]
             if name.strip().startswith("["): #skip non player entries
                 continue
-            sql = "INSERT INTO ids(id, name, sport, league) VALUES (?, ?, ?, ?)"
+            sql = "INSERT OR IGNORE INTO ids(id, name, sport, league) VALUES (?, ?, ?, ?)"
             params = (id, name, sport, league)
             cur.execute(sql,params)
         page_count += 1
