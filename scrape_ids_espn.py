@@ -1,18 +1,13 @@
 import sqlite3
 import requests
+from leagues import LEAGUES_AND_SPORTS
 
 con = sqlite3.connect("ESPN_player_ids.db")
 cur = con.cursor()
 sql = "CREATE TABLE IF NOT EXISTS ids(id INTEGER, name TEXT, sport TEXT, league TEXT, UNIQUE(id, sport, league))"
 cur = cur.execute(sql)
 con.commit()
-sports_dict = {
-    "nfl": "football",
-    "nhl": "hockey",
-    "mlb": "baseball",
-    "nba": "basketball"
-}
-for league, sport in sports_dict.items():
+for league, sport in LEAGUES_AND_SPORTS.items():
     print(f"Scraping {league} now")
     url = f"https://sports.core.api.espn.com/v3/sports/{sport}/{league}/athletes/"
     page_count = 1
