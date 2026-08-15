@@ -6,6 +6,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 from database import insert_private_link, initalize_db, insert_group_link, query_shared_links
 from espn_api import player_search, db_lookup, espn_scoreboard, player_stats, espn_standings
+from leagues import LEAGUES_AND_SPORTS
 
 load_dotenv()
 async def score(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -108,7 +109,7 @@ async def query_links(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
 
 async def bio(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     split = update.message.text.split()
-    valid_leagues = ["mlb", "nfl", "nhl"] #safe to add NBA whenever, scrape logic will scrape all 4 now.
+    valid_leagues = LEAGUES_AND_SPORTS.keys()
     league = None
     for word in split[1:]:
         if word.lower() in valid_leagues:
