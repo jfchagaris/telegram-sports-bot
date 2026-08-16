@@ -295,16 +295,28 @@ def espn_scoreboard(team=None, league=None):
         else:
             return team_scoreboard
         
-def espn_standings(division=None):
+def espn_standings(division=None, league=None):
     if not division:
         return f"Enter a division"
     division = division.strip().lower()
     if division not in DIVISION_TO_LEAGUE:
         return f"unknown division: {division}"
     options = DIVISION_TO_LEAGUE[division]
-    if len(options) > 1:
-        return f"{division} is in 2 leagues."
-    league, canonical = options[0]
+    if len(options) > 1 and league is None:
+        leagues = []
+        for league, canonical in options:
+            leagues.append(league)
+        return leagues
+    if league is None:
+        league, canonical = options[0]
+    else:
+        canonical = None
+        for opt_league, opt_canonical in options:
+            if opt_league == league:
+                canonical = opt_canonical
+                break
+        if canonical is None:
+            return f"{league} not found"
     sport = LEAGUES_AND_SPORTS[league]
     base_url = f"https://site.api.espn.com/apis/v2/sports/{sport}/{league}/standings?level=3"
     response = requests.get(base_url).json()
