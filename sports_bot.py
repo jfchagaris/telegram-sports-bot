@@ -21,7 +21,11 @@ async def standings(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user_input = " ".join(split[1:])
     print(update.message.text)
     print(update.effective_user)
-    await update.message.reply_text(espn_standings(user_input))
+    result = espn_standings(user_input)
+    if isinstance(result, list):
+        await update.message.reply_text("pick a league")
+    else:
+        await update.message.reply_text(result)
 
 async def score_board(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     split = update.message.text.split()
