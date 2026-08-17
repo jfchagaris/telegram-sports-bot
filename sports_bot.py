@@ -1,5 +1,5 @@
-from telegram import Update, LinkPreviewOptions
-from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, MessageHandler, filters, ConversationHandler
+from telegram import Update, LinkPreviewOptions, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, MessageHandler, filters, CallbackQueryHandler
 from dotenv import load_dotenv
 import os
 from datetime import datetime
@@ -21,7 +21,20 @@ async def standings(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user_input = " ".join(split[1:])
     print(update.message.text)
     print(update.effective_user)
-    await update.message.reply_text(espn_standings(user_input))
+    result = espn_standings(user_input)
+    if isinstance(result, list):
+        button_list = []
+        for r in result:
+            button_list.append(InlineKeyboardButton(r, callback_data=f"{r}:{user_input}"))
+        await update.message.reply_text("which league?", reply_markup=InlineKeyboardMarkup([button_list]))
+    else:
+        await update.message.reply_text(result)
+
+async def standings_button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    await update.callback_query.answer()
+    league, division = update.callback_query.data.split(":")
+    result = espn_standings(division, league=league)
+    await update.callback_query.edit_message_text(result)
 
 async def score_board(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     split = update.message.text.split()
@@ -149,4 +162,5 @@ app.add_handler(CommandHandler("standings", standings))
 app.add_handler(CommandHandler("bio", bio))
 app.add_handler(CommandHandler("links", query_links))
 app.add_handler(MessageHandler(filters.TEXT, url_db))
+app.add_handler(CallbackQueryHandler(standings_button))
 app.run_polling()
