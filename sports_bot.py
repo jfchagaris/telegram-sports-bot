@@ -1,5 +1,5 @@
 from telegram import Update, LinkPreviewOptions, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, MessageHandler, filters, ConversationHandler, CallbackQueryHandler
+from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, MessageHandler, filters, CallbackQueryHandler
 from dotenv import load_dotenv
 import os
 from datetime import datetime
