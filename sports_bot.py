@@ -1,4 +1,4 @@
-from telegram import Update, LinkPreviewOptions
+from telegram import Update, LinkPreviewOptions, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, MessageHandler, filters, ConversationHandler
 from dotenv import load_dotenv
 import os
@@ -23,7 +23,10 @@ async def standings(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     print(update.effective_user)
     result = espn_standings(user_input)
     if isinstance(result, list):
-        await update.message.reply_text("pick a league")
+        button_list = []
+        for r in result:
+            button_list.append(InlineKeyboardButton(r, callback_data=f"{r}:{user_input}"))
+        await update.message.reply_text("which league?", reply_markup=InlineKeyboardMarkup([button_list]))
     else:
         await update.message.reply_text(result)
 
