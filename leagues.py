@@ -34,6 +34,11 @@ DIVISION_TO_LEAGUE = {
 
 }
 
+CONFERENCE_AND_LEAGUES = {
+    "nl": ("mlb", "National League"),
+    "al": ("mlb", "American League"),
+}
+
 team_alt_name = {
     "Leafs": "Maple Leafs",
     "Habs": "Canadiens",
