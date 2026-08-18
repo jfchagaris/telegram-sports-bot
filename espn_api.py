@@ -380,10 +380,11 @@ def wildcard_standings(conference=None):
                 playoff_seed_sort.append((playoff_seed, team, wins, losses))
     seed_sort = sorted(playoff_seed_sort)
     seed_sort = seed_sort[3:]
+    cut_seed, cut_team, cut_wins, cut_losses = seed_sort[2]
     for i, wc_teams in enumerate(seed_sort):
         seed, team, wins, losses = wc_teams
-        wc_standings_list.append(f"{i + 1} {team} {wins}-{losses}")
+        gb = ((cut_wins - wins) + (losses - cut_losses)) / 2
+        wc_standings_list.append(f"{i + 1} {team} {wins}-{losses} {gb}")
         if i == 2:
             wc_standings_list.append("---")
-
     return "\n".join(wc_standings_list)
