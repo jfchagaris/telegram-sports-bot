@@ -384,7 +384,11 @@ def wildcard_standings(conference=None):
     for i, wc_teams in enumerate(seed_sort):
         seed, team, wins, losses = wc_teams
         gb = ((cut_wins - wins) + (losses - cut_losses)) / 2
-        wc_standings_list.append(f"{i + 1} {team} {wins}-{losses} {gb}")
+        if gb < 0:
+            gb = f"+{-gb}"
+        else:
+            gb = gb
+        wc_standings_list.append(f"{i + 1} {team} {int(wins)}-{int(losses)} {gb}")
         if i == 2:
             wc_standings_list.append("---")
     return "\n".join(wc_standings_list)
