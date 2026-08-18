@@ -5,7 +5,7 @@ import os
 from datetime import datetime
 from zoneinfo import ZoneInfo
 from database import insert_private_link, initalize_db, insert_group_link, query_shared_links
-from espn_api import player_search, db_lookup, espn_scoreboard, player_stats, espn_standings
+from espn_api import player_search, db_lookup, espn_scoreboard, player_stats, division_standings
 from leagues import LEAGUES_AND_SPORTS
 
 load_dotenv()
@@ -21,7 +21,7 @@ async def standings(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user_input = " ".join(split[1:])
     print(update.message.text)
     print(update.effective_user)
-    result = espn_standings(user_input)
+    result = division_standings(user_input)
     if isinstance(result, list):
         button_list = []
         for r in result:
@@ -33,7 +33,7 @@ async def standings(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 async def standings_button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.callback_query.answer()
     league, division = update.callback_query.data.split(":")
-    result = espn_standings(division, league=league)
+    result = division_standings(division, league=league)
     await update.callback_query.edit_message_text(result)
 
 async def score_board(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:

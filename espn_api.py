@@ -295,7 +295,7 @@ def espn_scoreboard(team=None, league=None):
         else:
             return team_scoreboard
         
-def espn_standings(division=None, league=None):
+def division_standings(division=None, league=None):
     if not division:
         return f"Enter a division"
     division = division.strip().lower()
@@ -349,9 +349,3 @@ def espn_standings(division=None, league=None):
             walk_standings(child)
     walk_standings(response)
     return "\n".join(standing_list)
-
-if __name__ == "__main__":
-    print(espn_standings(division="NL central"))
-# my_dict = {"nfl": "football", "nhl": "hockey"}
-# for item, sport in my_dict.items():
-#     print(item, sport)
