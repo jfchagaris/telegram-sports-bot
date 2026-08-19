@@ -152,15 +152,15 @@ async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     else:
         await update.message.reply_text(f"{player} not found, try again")
 
-async def wc_standings(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+async def wildcard(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     split = update.message.text.split()
-    user_input = split[1]
+    user_input = " ".join(split[1:])
     await update.message.reply_text(wildcard_standings(user_input))
 
 app = ApplicationBuilder().token(os.getenv("TELEGRAM_BOT_TOKEN")).build()
 initalize_db()
-app.add_handler(CommandHandler("wildcard", wc_standings))
-app.add_handler(CommandHandler("wc", wc_standings))
+app.add_handler(CommandHandler("wildcard", wildcard))
+app.add_handler(CommandHandler("wc", wildcard))
 app.add_handler(CommandHandler("stats", stats))
 app.add_handler(CommandHandler("sb", score_board))
 app.add_handler(CommandHandler("score", score))

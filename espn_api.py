@@ -378,6 +378,8 @@ def wildcard_standings(conference=None):
                     elif e["name"] == "playoffSeed":
                         playoff_seed = e["value"]
                 playoff_seed_sort.append((playoff_seed, team, wins, losses))
+    if not playoff_seed_sort:
+        return f"no wild card data for that conference"
     seed_sort = sorted(playoff_seed_sort)
     seed_sort = seed_sort[3:]
     cut_seed, cut_team, cut_wins, cut_losses = seed_sort[2]
@@ -386,8 +388,6 @@ def wildcard_standings(conference=None):
         gb = ((cut_wins - wins) + (losses - cut_losses)) / 2
         if gb < 0:
             gb = f"+{-gb}"
-        else:
-            gb = gb
         wc_standings_list.append(f"{i + 1} {team} {int(wins)}-{int(losses)} {gb}")
         if i == 2:
             wc_standings_list.append("---")
