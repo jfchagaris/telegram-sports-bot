@@ -1,6 +1,6 @@
 import requests
 import sqlite3
-from leagues import LEAGUES_AND_SPORTS, DIVISION_TO_LEAGUE, team_alt_name
+from leagues import LEAGUES_AND_SPORTS, DIVISION_TO_LEAGUE, team_alt_name, CONFERENCE_AND_LEAGUES
 
 def player_stats(player, league=None, sport=None):
     id = db_lookup(player)
@@ -349,3 +349,46 @@ def division_standings(division=None, league=None):
             walk_standings(child)
     walk_standings(response)
     return "\n".join(standing_list)
+
+def wildcard_standings(conference=None):
+    if not conference:
+        return f"enter a conference"
+    conference = conference.strip().lower()
+    if conference not in CONFERENCE_AND_LEAGUES:
+        return f"unknown conference: {conference}"
+    league, canonical = CONFERENCE_AND_LEAGUES[conference]
+    sport = LEAGUES_AND_SPORTS[league]
+    base_url = f"https://site.api.espn.com/apis/v2/sports/{sport}/{league}/standings?level=2"
+    response = requests.get(base_url).json()
+    wc_standings_list = []
+    playoff_seed_sort = []
+    for s in response["children"]:
+        if s["name"] == canonical:
+            wc_standings_list.append(f"{canonical} Wildcard standings:")
+            for t in s["standings"]["entries"]:
+                team = t["team"]["shortDisplayName"]
+                wins = None
+                losses = None
+                playoff_seed = None
+                for e in t["stats"]:
+                    if e["name"] == "wins":
+                        wins = e["value"]
+                    elif e["name"] == "losses":
+                        losses = e["value"]
+                    elif e["name"] == "playoffSeed":
+                        playoff_seed = e["value"]
+                playoff_seed_sort.append((playoff_seed, team, wins, losses))
+    if not playoff_seed_sort:
+        return f"no wild card data for that conference"
+    seed_sort = sorted(playoff_seed_sort)
+    seed_sort = seed_sort[3:]
+    cut_seed, cut_team, cut_wins, cut_losses = seed_sort[2]
+    for i, wc_teams in enumerate(seed_sort):
+        seed, team, wins, losses = wc_teams
+        gb = ((cut_wins - wins) + (losses - cut_losses)) / 2
+        if gb < 0:
+            gb = f"+{-gb}"
+        wc_standings_list.append(f"{i + 1} {team} {int(wins)}-{int(losses)} {gb}")
+        if i == 2:
+            wc_standings_list.append("---")
+    return "\n".join(wc_standings_list)

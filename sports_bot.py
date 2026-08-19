@@ -5,7 +5,7 @@ import os
 from datetime import datetime
 from zoneinfo import ZoneInfo
 from database import insert_private_link, initalize_db, insert_group_link, query_shared_links
-from espn_api import player_search, db_lookup, espn_scoreboard, player_stats, division_standings
+from espn_api import player_search, db_lookup, espn_scoreboard, player_stats, division_standings, wildcard_standings
 from leagues import LEAGUES_AND_SPORTS
 
 load_dotenv()
@@ -152,8 +152,15 @@ async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     else:
         await update.message.reply_text(f"{player} not found, try again")
 
+async def wildcard(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    split = update.message.text.split()
+    user_input = " ".join(split[1:])
+    await update.message.reply_text(wildcard_standings(user_input))
+
 app = ApplicationBuilder().token(os.getenv("TELEGRAM_BOT_TOKEN")).build()
 initalize_db()
+app.add_handler(CommandHandler("wildcard", wildcard))
+app.add_handler(CommandHandler("wc", wildcard))
 app.add_handler(CommandHandler("stats", stats))
 app.add_handler(CommandHandler("sb", score_board))
 app.add_handler(CommandHandler("score", score))
