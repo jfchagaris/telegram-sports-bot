@@ -3,66 +3,28 @@ import sqlite3
 from leagues import LEAGUES_AND_SPORTS, DIVISION_TO_LEAGUE, team_alt_name, CONFERENCE_AND_LEAGUES
 
 def player_stats(player, league=None, sport=None):
-    id = db_lookup(player)
-    if id is not None:
-        if len(db_lookup_all_ids(player)) == 1:
-            player_id, player_sport, player_league = id
-        else:
-            ids = db_lookup_all_ids(player)
-            stats_summary_output = ""
-            for p in ids:
-                player_id = p[0]
-                player_sport = p[2]
-                player_league= p[3]
-                url = f"https://site.web.api.espn.com/apis/common/v3/sports/{player_sport}/{player_league}/athletes/{player_id}/"
-                response = requests.get(url).json()
-                display_name = response['athlete']['displayName']
-                player_stat_block = ""
-                year = response['athlete']['statsSummary']['displayName']
-                player_stat_block += f"{display_name}\n{year}\n"
-                try:
-                    stats_summary = response['athlete']['statsSummary']
-                    stats = stats_summary['statistics']
-                    #year = stats_summary['displayName']
-                    for s in stats:
-                        #year = stats_summary["displayName"]
-                        stat_name = s['shortDisplayName']
-                        display_value = s['displayValue']
-                        rank = s['rankDisplayValue']
-                        stats_formating = f"{stat_name} {display_value} Rank: {rank}\n"
-                        player_stat_block += stats_formating
-                    #stats_summary_output = f"{display_name}\n{stats_summary_output}"
-
-                except:
-                    player_stat_block = f"{display_name} has no stats\n"
-                #stats_summary_output += year
-                stats_summary_output += player_stat_block
-                #stats_summary_output = f"{display_name}\n" + stats_summary_output
-            print(stats_summary_output)
-            return stats_summary_output
-            
-    else:
-        return "not ready yet"
-    url = f"https://site.web.api.espn.com/apis/common/v3/sports/{player_sport}/{player_league}/athletes/{player_id}/"
-    response = requests.get(url)
-    data = response.json()
-    athlete_display_name = data['athlete']['displayName']
-    stats_summary = data['athlete']['statsSummary']
-    display_name = stats_summary['displayName']
-    stats = stats_summary['statistics']
-    year = data['athlete']['statsSummary']['displayName']
-    stats_summary_output = f"{athlete_display_name}\n{display_name}\n"
-    for s in stats:
-        stat_name = s['shortDisplayName']
-        display_value = s['displayValue']
+    ids = db_lookup_all_ids(player)
+    if not ids:
+        return "player not in db"
+    stats_list = []
+    for row in ids:
+        player_id, player_name, player_sport, player_league = row
+        url = f"https://site.web.api.espn.com/apis/common/v3/sports/{player_sport}/{player_league}/athletes/{player_id}/"
+        response = requests.get(url).json()
+        display_name = response["athlete"]["displayName"]
+        year = response["athlete"]["statsSummary"]["displayName"]
+        stats_list.append(f"{display_name}\n{year}\n")
         try:
-            rank = s["rankDisplayValue"]
+            stats_summary = response["athlete"]["statsSummary"]
+            stats = stats_summary["statistics"]
+            for s in stats:
+                stat_name = s["shortDisplayName"]
+                display_value = s["displayValue"]
+                rank = s.get("rankDisplayValue", "n/a")
+                stats_list.append(f"{stat_name} {display_value} Rank: {rank}\n")
         except:
-            rank = "n/a"
-        stats_formating = f"{stat_name} {display_value} Rank: {rank}\n"
-        stats_summary_output += stats_formating
-    #print(stats_summary_output)
-    return stats_summary_output
+            stats_list.append(f"{display_name} has no stats\n")
+    return stats_list
 
 def player_search(player, league=None, sport=None):
     id = db_lookup(player)
