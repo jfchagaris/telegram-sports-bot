@@ -22,7 +22,7 @@ for league, sport in LEAGUES_AND_SPORTS.items():
             try:
                 name = i["displayName"]
             except KeyError:
-                name = f"{i["firstName"]} {i["lastName"]}"
+                name = f"{i['firstName']} {i['lastName']}"
             if name.strip().startswith("["): #skip non player entries
                 continue
             sql = "INSERT OR IGNORE INTO ids(id, name, sport, league) VALUES (?, ?, ?, ?)"
