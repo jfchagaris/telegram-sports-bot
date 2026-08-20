@@ -12,18 +12,21 @@ def player_stats(player, league=None, sport=None):
         url = f"https://site.web.api.espn.com/apis/common/v3/sports/{player_sport}/{player_league}/athletes/{player_id}/"
         response = requests.get(url).json()
         display_name = response["athlete"]["displayName"]
-        year = response["athlete"]["statsSummary"]["displayName"]
+        stats_summary = response["athlete"].get("statsSummary", {})
+        if not stats_summary:
+            stats_list.append(f"{display_name} has no stats")
+            continue
+        stats = stats_summary.get("statistics", [])
+        if not stats:
+            stats_list.append(f"{display_name} has no stats")
+            continue
+        year = stats_summary["displayName"]
         stats_list.append(f"{display_name}\n{year}\n")
-        try:
-            stats_summary = response["athlete"]["statsSummary"]
-            stats = stats_summary["statistics"]
-            for s in stats:
-                stat_name = s["shortDisplayName"]
-                display_value = s["displayValue"]
-                rank = s.get("rankDisplayValue", "n/a")
-                stats_list.append(f"{stat_name} {display_value} Rank: {rank}\n")
-        except:
-            stats_list.append(f"{display_name} has no stats\n")
+        for s in stats:
+            stat_name = s["shortDisplayName"]
+            display_value = s["displayValue"]
+            rank = s.get("rankDisplayValue", "n/a")
+            stats_list.append(f"{stat_name} {display_value} Rank: {rank}\n")
     return stats_list
 
 def player_search(player, league=None, sport=None):
