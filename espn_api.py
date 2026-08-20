@@ -3,6 +3,7 @@ import sqlite3
 from leagues import LEAGUES_AND_SPORTS, DIVISION_TO_LEAGUE, team_alt_name, CONFERENCE_AND_LEAGUES
 
 def player_stats(player, league=None, sport=None):
+    player = player.title()
     ids = db_lookup_all_ids(player)
     if not ids:
         return "player not in db"
@@ -21,13 +22,13 @@ def player_stats(player, league=None, sport=None):
             stats_list.append(f"{display_name} has no stats")
             continue
         year = stats_summary["displayName"]
-        stats_list.append(f"{display_name}\n{year}\n")
+        stats_list.append(f"{display_name}\n{year}")
         for s in stats:
             stat_name = s["shortDisplayName"]
             display_value = s["displayValue"]
             rank = s.get("rankDisplayValue", "n/a")
-            stats_list.append(f"{stat_name} {display_value} Rank: {rank}\n")
-    return stats_list
+            stats_list.append(f"{stat_name} {display_value} Rank: {rank}")
+    return "\n".join(stats_list)
 
 def player_search(player, league=None, sport=None):
     id = db_lookup(player)
