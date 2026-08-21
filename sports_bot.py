@@ -146,11 +146,7 @@ async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     split = update.message.text.split()
     player = split[1:]
     player = " ".join(player)
-    player = player.title()
-    if db_lookup(player) is not None:
-        await update.message.reply_text(player_stats(player))
-    else:
-        await update.message.reply_text(f"{player} not found, try again")
+    await update.message.reply_text(player_stats(player))
 
 async def wildcard(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     split = update.message.text.split()
