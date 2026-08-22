@@ -28,6 +28,20 @@ def player_stats(player, league=None, sport=None):
             display_value = s["displayValue"]
             rank = s.get("rankDisplayValue", "n/a")
             stats_list.append(f"{stat_name} {display_value} Rank: {rank}")
+        if player_league == "mlb":
+            url = f"https://site.web.api.espn.com/apis/common/v3/sports/{player_sport}/{player_league}/athletes/{player_id}/stats"
+            adv_stats_repsonce = requests.get(url).json()
+            categories = adv_stats_repsonce["categories"]
+            for c in categories:
+                if c["name"] == "advanced-batting":
+                    labels = c["labels"]
+                    season_stats = c["statistics"][-1]["stats"]
+                    stat_map = dict(zip(labels, season_stats))
+                    war = stat_map.get("WAR")
+                    bb_pa = stat_map.get("BB/PA")
+                    bb_k = stat_map.get("BB/K")
+                    rc = stat_map.get("RC")
+                    stats_list.append(f"WAR: {war} / RC: {rc} / BB/PA: {bb_pa} / BB/K: {bb_k}")
     return "\n".join(stats_list)
 
 def player_search(player, league=None, sport=None):
