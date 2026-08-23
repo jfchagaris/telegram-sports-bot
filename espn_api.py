@@ -28,6 +28,33 @@ def player_stats(player, league=None, sport=None):
             display_value = s["displayValue"]
             rank = s.get("rankDisplayValue", "n/a")
             stats_list.append(f"{stat_name} {display_value} Rank: {rank}")
+        if player_league == "mlb":
+            url = f"https://site.web.api.espn.com/apis/common/v3/sports/{player_sport}/{player_league}/athletes/{player_id}/stats"
+            adv_stats_repsonce = requests.get(url).json()
+            categories = adv_stats_repsonce.get("categories", [])
+            for c in categories:
+                if c["name"] == "advanced-batting":
+                    labels = c["labels"]
+                    season_stats = c.get("statistics", [])
+                    if not season_stats:
+                        continue
+                    season_stats = season_stats[-1]["stats"]
+                    stat_map = dict(zip(labels, season_stats))
+                    war = stat_map.get("WAR", "n/a")
+                    bb_pa = stat_map.get("BB/PA", "n/a")
+                    bb_k = stat_map.get("BB/K", "n/a")
+                    rc = stat_map.get("RC", "n/a")
+                    stats_list.append(f"WAR: {war} / RC: {rc} / BB/PA: {bb_pa} / BB/K: {bb_k}")
+                elif c["name"] == "expanded-pitching":
+                    labels = c["labels"]
+                    season_stats = c.get("statistics", [])
+                    if not season_stats:
+                        continue
+                    season_stats = season_stats[-1]["stats"]
+                    stat_map = dict(zip(labels, season_stats))
+                    k_9 = stat_map.get("K/9", "n/a")
+                    gb_fb = stat_map.get("G/F", "n/a")
+                    stats_list.append(f"K/9: {k_9} / GB/FO: {gb_fb}")
     return "\n".join(stats_list)
 
 def player_search(player, league=None, sport=None):
