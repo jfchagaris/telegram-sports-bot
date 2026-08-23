@@ -47,7 +47,7 @@ def player_stats(player, league=None, sport=None):
                     stats_list.append(f"WAR: {war} / RC: {rc} / BB/PA: {bb_pa} / BB/K: {bb_k}")
                 elif c["name"] == "expanded-pitching":
                     labels = c["labels"]
-                    season_stats = c.get("statistics")
+                    season_stats = c.get("statistics", [])
                     if not season_stats:
                         continue
                     season_stats = season_stats[-1]["stats"]
