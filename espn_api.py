@@ -53,12 +53,8 @@ def player_stats(player, league=None, sport=None):
                     season_stats = season_stats[-1]["stats"]
                     stat_map = dict(zip(labels, season_stats))
                     k_9 = stat_map.get("K/9", "n/a")
-                    gb = stat_map.get("GB", "n/a")
-                    fb = stat_map.get("FB", "n/a")
                     gb_fb = stat_map.get("G/F", "n/a")
-                    ir = stat_map.get("IR", "n/a")
-                    irs = stat_map.get("IRS", "n/a")
-                    stats_list.append(f"K/9: {k_9} / GB: {gb} / FB: {fb} / GB/FO: {gb_fb} / IR: {ir} / IRS: {irs}")
+                    stats_list.append(f"K/9: {k_9} / GB/FO: {gb_fb}")
     return "\n".join(stats_list)
 
 def player_search(player, league=None, sport=None):
