@@ -98,43 +98,22 @@ def player_search(player, league=None, sport=None):
         if not found:
             return f"Player not found"
     # getting the bio elements
-    response = requests.get(f"https://sports.core.api.espn.com/v3/sports/{player_sport}/{player_league}/athletes/{player_id}/")
-    data = response.json()
-    display_name = data["displayName"]
-    weight = data["displayWeight"]
-    height = data["displayHeight"]
-    age = data["age"]
-    birth_city = data["birthPlace"]["city"]
-    try:
-        birth_state = data["birthPlace"]["state"]
-    except:
-        birth_state = data["birthPlace"]["country"]
-    try:
-        hand = data["hand"]["abbreviation"]
-    except:
-        hand = None
-    response = requests.get(f"https://site.web.api.espn.com/apis/common/v3/sports/{player_sport}/{player_league}/athletes/{player_id}/")
-    data = response.json()
-    #print(data)
-    experience = data["athlete"]["displayExperience"]
-    try:
-        draft = data["athlete"]["displayDraft"]
-    except:
-        draft = None
-        debut_year = data["athlete"]["debutYear"]
-    try:
-        team = data["athlete"]["team"]["displayName"]
-    except:
-        team = "N/A"
-    try:
-        position = data["athlete"]["position"]["abbreviation"]
-    except:
-        position = "N/A"
-    try:
-        bat_throw = data["athlete"]["displayBatsThrows"]
-    except:
-        bat_throw = None
-
+    url = f"https://site.web.api.espn.com/apis/common/v3/sports/{player_sport}/{player_league}/athletes/{player_id}/"
+    response = requests.get(url).json()
+    display_name = response["athlete"].get("displayName")
+    if not display_name:
+        display_name = f"{response['athlete'].get('firstName')} {response['athlete'].get('lastName')}"
+    weight = response["athlete"].get("displayWeight")
+    height = response["athlete"].get("displayHeight")
+    age = response["athlete"].get("age")
+    birth_place = response["athlete"].get("displayBirthPlace")
+    experience = response["athlete"].get("displayExperience")
+    draft = response["athlete"].get("displayDraft")
+    hand = response["athlete"].get("hand", {}).get("abbreviation")
+    bat_throw = response["athlete"].get("displayBatsThrows")
+    position = response["athlete"].get("position", {}).get("abbreviation")
+    team = response["athlete"].get("team", {}).get("displayName")
+    debut_year = response["athlete"].get("debutYear")
     player_bio = (
         f"Name: {display_name}\n"
         f"Age: {age}\n"
@@ -148,7 +127,7 @@ def player_search(player, league=None, sport=None):
     player_bio += (
         f"Experience: {experience}\n"
         f"Height: {height}, Weight: {weight}\n"
-        f"Birthplace: {birth_city}, {birth_state}\n"
+        f"Birthplace: {birth_place}\n"
     )
     if draft is not None:
         player_bio += f"Draft: {draft}"
