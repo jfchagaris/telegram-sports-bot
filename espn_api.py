@@ -3,7 +3,6 @@ import sqlite3
 from leagues import LEAGUES_AND_SPORTS, DIVISION_TO_LEAGUE, team_alt_name, CONFERENCE_AND_LEAGUES
 
 def player_stats(player, league=None, sport=None):
-    player = player.title()
     ids = db_lookup_all_ids(player)
     if not ids:
         return "player not in db"
@@ -58,7 +57,6 @@ def player_stats(player, league=None, sport=None):
     return "\n".join(stats_list)
 
 def player_search(player, league=None, sport=None):
-    player = player.title()
     ids = db_lookup_all_ids(player)
     if not ids:
         if not league:
@@ -79,7 +77,7 @@ def player_search(player, league=None, sport=None):
                 display_name = i.get("displayName")
                 if not display_name:
                     display_name = f"{i.get('firstName', '')} {i.get('lastName', '')}"
-                if player == display_name:
+                if player.lower() == display_name.lower():
                     found = True
                     id = i["id"]
                     name = display_name
@@ -143,7 +141,7 @@ def player_search(player, league=None, sport=None):
 def db_lookup(player):
     con = sqlite3.connect("ESPN_player_ids.db")
     cur = con.cursor()
-    sql = "SELECT * FROM ids WHERE name = ?"
+    sql = "SELECT * FROM ids WHERE name = ? COLLATE NOCASE"
     params = (player,)
     query = cur.execute(sql,params)
     query = query.fetchone()
@@ -159,7 +157,7 @@ def db_lookup(player):
 def db_lookup_all_ids(player):
     con = sqlite3.connect('ESPN_player_ids.db')
     cur = con.cursor()
-    sql = "SELECT * FROM ids WHERE name = ?"
+    sql = "SELECT * FROM ids WHERE name = ? COLLATE NOCASE"
     params = (player,)
     query = cur.execute(sql, params)
     query = query.fetchall()
