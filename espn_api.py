@@ -3,7 +3,6 @@ import sqlite3
 from leagues import LEAGUES_AND_SPORTS, DIVISION_TO_LEAGUE, team_alt_name, CONFERENCE_AND_LEAGUES
 
 def player_stats(player, league=None, sport=None):
-    player = player.title()
     ids = db_lookup_all_ids(player)
     if not ids:
         return "player not in db"
@@ -58,109 +57,91 @@ def player_stats(player, league=None, sport=None):
     return "\n".join(stats_list)
 
 def player_search(player, league=None, sport=None):
-    id = db_lookup(player)
-    #print(id)
-    if id is not None:
-        player_id, player_sport, player_league = id #id contains 3 elements from the db_lookup()
-    else: #bot asks to enter a legue to build the link
+    ids = db_lookup_all_ids(player)
+    if not ids:
+        if not league:
+            return f"enter a league"
         if league in LEAGUES_AND_SPORTS:
             sport = LEAGUES_AND_SPORTS[league]
-        print(f"Searching {league}")
+        else:
+            return f"unknown league {league}"
         url = f"https://sports.core.api.espn.com/v3/sports/{sport}/{league}/athletes/"
         page_count = 1
-        response = requests.get(url)
-        data = response.json()
-        pages = data["pageCount"]
+        response = requests.get(url).json()
+        pages = response["pageCount"]
         found = False
-        #print(data)
         while page_count <= pages and not found:
             url = f"https://sports.core.api.espn.com/v3/sports/{sport}/{league}/athletes?page={page_count}"
-            response = requests.get(url)
-            data = response.json()
-            for i in data["items"]:
-                if player == i["displayName"]:
+            response = requests.get(url).json()
+            for i in response["items"]:
+                display_name = i.get("displayName")
+                if not display_name:
+                    display_name = f"{i.get('firstName', '')} {i.get('lastName', '')}"
+                if player.lower() == display_name.lower():
                     found = True
                     id = i["id"]
-                    name = i["displayName"]
-                    print(id, name)
+                    name = display_name
                     con = sqlite3.connect("ESPN_player_ids.db")
                     cur = con.cursor()
-                    sql = "INSERT INTO ids(id, name, sport, league) VALUES (?, ?, ?, ?)"
+                    sql = "INSERT OR IGNORE INTO ids(id, name, sport, league) VALUES (?, ?, ?, ?)"
                     params = (id, name, sport, league)
                     cur.execute(sql, params)
                     con.commit()
                     con.close()
-                    player_id = id 
-                    player_sport = sport
-                    player_league = league
                     break
             page_count += 1
-        if not found:
+        ids = db_lookup_all_ids(player)
+        if not ids:
             return f"Player not found"
-    # getting the bio elements
-    response = requests.get(f"https://sports.core.api.espn.com/v3/sports/{player_sport}/{player_league}/athletes/{player_id}/")
-    data = response.json()
-    display_name = data["displayName"]
-    weight = data["displayWeight"]
-    height = data["displayHeight"]
-    age = data["age"]
-    birth_city = data["birthPlace"]["city"]
-    try:
-        birth_state = data["birthPlace"]["state"]
-    except:
-        birth_state = data["birthPlace"]["country"]
-    try:
-        hand = data["hand"]["abbreviation"]
-    except:
-        hand = None
-    response = requests.get(f"https://site.web.api.espn.com/apis/common/v3/sports/{player_sport}/{player_league}/athletes/{player_id}/")
-    data = response.json()
-    #print(data)
-    experience = data["athlete"]["displayExperience"]
-    try:
-        draft = data["athlete"]["displayDraft"]
-    except:
-        draft = None
-        debut_year = data["athlete"]["debutYear"]
-    try:
-        team = data["athlete"]["team"]["displayName"]
-    except:
-        team = "N/A"
-    try:
-        position = data["athlete"]["position"]["abbreviation"]
-    except:
-        position = "N/A"
-    try:
-        bat_throw = data["athlete"]["displayBatsThrows"]
-    except:
-        bat_throw = None
-
-    player_bio = (
-        f"Name: {display_name}\n"
-        f"Age: {age}\n"
-        f"Team: {team}\n"
-        f"Position: {position}\n"
-    )
-    if bat_throw is not None:
-        player_bio += f"Bats/throws: {bat_throw}\n"
-    if hand is not None:
-        player_bio += f"Shoots: {hand}\n"
-    player_bio += (
-        f"Experience: {experience}\n"
-        f"Height: {height}, Weight: {weight}\n"
-        f"Birthplace: {birth_city}, {birth_state}\n"
-    )
-    if draft is not None:
-        player_bio += f"Draft: {draft}"
-    else:
-        player_bio += f"Debut: {debut_year}"
-    print(display_name, weight, height, age, experience, draft)
-    return player_bio
+    all_bios = []
+    for row in ids:
+        player_id, player_name, player_sport, player_league = row
+        # getting the bio elements
+        url = f"https://site.web.api.espn.com/apis/common/v3/sports/{player_sport}/{player_league}/athletes/{player_id}/"
+        response = requests.get(url).json()
+        display_name = response["athlete"].get("displayName")
+        if not display_name:
+            display_name = f"{response['athlete'].get('firstName', '')} {response['athlete'].get('lastName', '')}"
+        weight = response["athlete"].get("displayWeight")
+        height = response["athlete"].get("displayHeight")
+        age = response["athlete"].get("age")
+        birth_place = response["athlete"].get("displayBirthPlace")
+        experience = response["athlete"].get("displayExperience")
+        draft = response["athlete"].get("displayDraft")
+        hand = response["athlete"].get("hand", {}).get("abbreviation")
+        bat_throw = response["athlete"].get("displayBatsThrows")
+        position = response["athlete"].get("position", {}).get("abbreviation")
+        team = response["athlete"].get("team", {}).get("displayName")
+        debut_year = response["athlete"].get("debutYear")
+        bio_list = []
+        bio_list.append(f"Name: {display_name}")
+        if age:
+            bio_list.append(f"Age: {age}")
+        if team:
+            bio_list.append(f"Team: {team}")
+        if position:
+            bio_list.append(f"Position: {position}")
+        if bat_throw:
+            bio_list.append(f"Bats/throws: {bat_throw}")
+        if hand:
+            bio_list.append(f"Shoots: {hand}")
+        if experience:
+            bio_list.append(f"Experience: {experience}")
+        if height or weight:
+            bio_list.append(f"Height: {height}, Weight: {weight}")
+        if birth_place:
+            bio_list.append(f"Birthplace: {birth_place}")
+        if draft:
+            bio_list.append(f"Draft: {draft}")
+        elif debut_year:
+            bio_list.append(f"Debut: {debut_year}")
+        all_bios.append("\n".join(bio_list))
+    return "\n\n".join(all_bios)
 
 def db_lookup(player):
     con = sqlite3.connect("ESPN_player_ids.db")
     cur = con.cursor()
-    sql = "SELECT * FROM ids WHERE name = ?"
+    sql = "SELECT * FROM ids WHERE name = ? COLLATE NOCASE"
     params = (player,)
     query = cur.execute(sql,params)
     query = query.fetchone()
@@ -176,7 +157,7 @@ def db_lookup(player):
 def db_lookup_all_ids(player):
     con = sqlite3.connect('ESPN_player_ids.db')
     cur = con.cursor()
-    sql = "SELECT * FROM ids WHERE name = ?"
+    sql = "SELECT * FROM ids WHERE name = ? COLLATE NOCASE"
     params = (player,)
     query = cur.execute(sql, params)
     query = query.fetchall()

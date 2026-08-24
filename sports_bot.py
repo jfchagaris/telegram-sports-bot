@@ -130,17 +130,7 @@ async def bio(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             break
     player_words = [word for word in split[1:] if word.lower() not in valid_leagues]
     player = " ".join(player_words)
-    player = player.title()
-    print(player)
-    if db_lookup(player) is not None:
-        await update.message.reply_text(player_search(player))
-    else:
-        if league == None:
-            await update.message.reply_text(f"player not in db. check spelling or specify league")
-            return
-        else:
-            await update.message.reply_text(f"Searching {league} players... this may take a while")
-            await update.message.reply_text(player_search(player, league=league))
+    await update.message.reply_text(player_search(player, league=league))
 
 async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     split = update.message.text.split()
