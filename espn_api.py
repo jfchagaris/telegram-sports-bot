@@ -12,7 +12,9 @@ def player_stats(player, league=None, sport=None):
         player_id, player_name, player_sport, player_league = row
         url = f"https://site.web.api.espn.com/apis/common/v3/sports/{player_sport}/{player_league}/athletes/{player_id}/"
         response = requests.get(url).json()
-        display_name = response["athlete"]["displayName"]
+        display_name = response["athlete"].get("displayName")
+        if not display_name:
+            display_name = f"{response['athlete'].get('firstName', '')} {response['athlete'].get('lastName', '')}"
         stats_summary = response["athlete"].get("statsSummary", {})
         if not stats_summary:
             all_stats.append(f"{display_name} has no stats")
