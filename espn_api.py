@@ -6,19 +6,22 @@ def player_stats(player, league=None, sport=None):
     ids = db_lookup_all_ids(player)
     if not ids:
         return "player not in db"
-    stats_list = []
+    all_stats = []
     for row in ids:
+        stats_list = []
         player_id, player_name, player_sport, player_league = row
         url = f"https://site.web.api.espn.com/apis/common/v3/sports/{player_sport}/{player_league}/athletes/{player_id}/"
         response = requests.get(url).json()
-        display_name = response["athlete"]["displayName"]
+        display_name = response["athlete"].get("displayName")
+        if not display_name:
+            display_name = f"{response['athlete'].get('firstName', '')} {response['athlete'].get('lastName', '')}"
         stats_summary = response["athlete"].get("statsSummary", {})
         if not stats_summary:
-            stats_list.append(f"{display_name} has no stats")
+            all_stats.append(f"{display_name} has no stats")
             continue
         stats = stats_summary.get("statistics", [])
         if not stats:
-            stats_list.append(f"{display_name} has no stats")
+            all_stats.append(f"{display_name} has no stats")
             continue
         year = stats_summary["displayName"]
         stats_list.append(f"{display_name}\n{year}")
@@ -54,7 +57,8 @@ def player_stats(player, league=None, sport=None):
                     k_9 = stat_map.get("K/9", "n/a")
                     gb_fb = stat_map.get("G/F", "n/a")
                     stats_list.append(f"K/9: {k_9} / GB/FO: {gb_fb}")
-    return "\n".join(stats_list)
+        all_stats.append("\n".join(stats_list))
+    return "\n\n".join(all_stats)
 
 def player_search(player, league=None, sport=None):
     ids = db_lookup_all_ids(player)
