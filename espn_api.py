@@ -114,27 +114,30 @@ def player_search(player, league=None, sport=None):
     position = response["athlete"].get("position", {}).get("abbreviation")
     team = response["athlete"].get("team", {}).get("displayName")
     debut_year = response["athlete"].get("debutYear")
-    player_bio = (
-        f"Name: {display_name}\n"
-        f"Age: {age}\n"
-        f"Team: {team}\n"
-        f"Position: {position}\n"
-    )
-    if bat_throw is not None:
-        player_bio += f"Bats/throws: {bat_throw}\n"
-    if hand is not None:
-        player_bio += f"Shoots: {hand}\n"
-    player_bio += (
-        f"Experience: {experience}\n"
-        f"Height: {height}, Weight: {weight}\n"
-        f"Birthplace: {birth_place}\n"
-    )
-    if draft is not None:
-        player_bio += f"Draft: {draft}"
+    bio_list = []
+    bio_list.append(f"Name: {display_name}")
+    if age:
+        bio_list.append(f"Age: {age}")
+    if team:
+        bio_list.append(f"Team: {team}")
+    if position:
+        bio_list.append(f"Position: {position}")
+    if bat_throw:
+        bio_list.append(f"Bats/throws: {bat_throw}")
+    if hand:
+        bio_list.append(f"Shoots: {hand}")
+    if experience:
+        bio_list.append(f"Experience: {experience}")
+    if height or weight:
+        bio_list.append(f"Height: {height}, Weight: {weight}")
+    if birth_place:
+        bio_list.append(f"Birthplace: {birth_place}")
+    if draft:
+        bio_list.append(f"Draft: {draft}")
     else:
-        player_bio += f"Debut: {debut_year}"
+        bio_list.append(f"Debut: {debut_year}")
     print(display_name, weight, height, age, experience, draft)
-    return player_bio
+    return "\n".join(bio_list)
 
 def db_lookup(player):
     con = sqlite3.connect("ESPN_player_ids.db")
