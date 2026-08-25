@@ -9,6 +9,7 @@ def player_stats(player, league=None, sport=None):
     all_stats = []
     for row in ids:
         stats_list = []
+        stat_lines = []
         player_id, player_name, player_sport, player_league = row
         url = f"https://site.web.api.espn.com/apis/common/v3/sports/{player_sport}/{player_league}/athletes/{player_id}/"
         response = requests.get(url).json()
@@ -29,10 +30,10 @@ def player_stats(player, league=None, sport=None):
             stat_name = s["shortDisplayName"]
             display_value = s["displayValue"]
             rank = s.get("rankDisplayValue", "n/a")
-            line = f"{stat_name} {display_value}"
+            line = f"{stat_name}: {display_value}"
             if rank != "n/a":
                 line += f" ({rank})"
-            stats_list.append(line)
+            stat_lines.append(line)
         if player_league == "mlb":
             url = f"https://site.web.api.espn.com/apis/common/v3/sports/{player_sport}/{player_league}/athletes/{player_id}/stats"
             adv_stats_repsonce = requests.get(url).json()
@@ -45,11 +46,10 @@ def player_stats(player, league=None, sport=None):
                         continue
                     season_stats = season_stats[-1]["stats"]
                     stat_map = dict(zip(labels, season_stats))
-                    war = stat_map.get("WAR", "n/a")
-                    bb_pa = stat_map.get("BB/PA", "n/a")
-                    bb_k = stat_map.get("BB/K", "n/a")
-                    rc = stat_map.get("RC", "n/a")
-                    stats_list.append(f"WAR: {war} / RC: {rc} / BB/PA: {bb_pa} / BB/K: {bb_k}")
+                    stat_lines.append(f"WAR: {stat_map.get('WAR', 'n/a')}")
+                    stat_lines.append(f"RC: {stat_map.get('RC', 'n/a')}")
+                    stat_lines.append(f"BB/PA: {stat_map.get('BB/PA', 'n/a')}")
+                    stat_lines.append(f"BB/K: {stat_map.get('BB/K', 'n/a')}")
                 elif c["name"] == "expanded-pitching":
                     labels = c["labels"]
                     season_stats = c.get("statistics", [])
@@ -57,9 +57,11 @@ def player_stats(player, league=None, sport=None):
                         continue
                     season_stats = season_stats[-1]["stats"]
                     stat_map = dict(zip(labels, season_stats))
-                    k_9 = stat_map.get("K/9", "n/a")
-                    gb_fb = stat_map.get("G/F", "n/a")
-                    stats_list.append(f"K/9: {k_9} / GB/FO: {gb_fb}")
+                    stat_lines.append(f"K/9: {stat_map.get('K/9', 'n/a')}")
+                    stat_lines.append(f"G/F: {stat_map.get('G/F', 'n/a')}")
+        for i in range(0, len(stat_lines), 3):
+            row = " | ".join(stat_lines[i:i+3])
+            stats_list.append(row)
         all_stats.append("\n".join(stats_list))
     return "\n\n".join(all_stats)
 
