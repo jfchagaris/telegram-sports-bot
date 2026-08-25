@@ -29,7 +29,10 @@ def player_stats(player, league=None, sport=None):
             stat_name = s["shortDisplayName"]
             display_value = s["displayValue"]
             rank = s.get("rankDisplayValue", "n/a")
-            stats_list.append(f"{stat_name} {display_value} Rank: {rank}")
+            line = f"{stat_name} {display_value}"
+            if rank != "n/a":
+                line += f" ({rank})"
+            stats_list.append(line)
         if player_league == "mlb":
             url = f"https://site.web.api.espn.com/apis/common/v3/sports/{player_sport}/{player_league}/athletes/{player_id}/stats"
             adv_stats_repsonce = requests.get(url).json()
