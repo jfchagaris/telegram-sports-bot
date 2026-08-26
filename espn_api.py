@@ -44,6 +44,15 @@ def player_stats(player, league=None, sport=None):
                 if not season_stats:
                     continue
                 maps[c["name"]] = dict(zip(c["labels"], season_stats[-1]["stats"]))
+            if "career-batting" in maps:
+                career_batting = maps["career-batting"]
+                stat_lines.append(f"OBP: {career_batting.get('OBP', 'n/a')}")
+                stat_lines.append(f"SLG: {career_batting.get('SLG', 'n/a')}")
+                stat_lines.append(f"R: {career_batting.get('R', 'n/a')}")
+                stat_lines.append(f"H: {career_batting.get('H', 'n/a')}")
+                stat_lines.append(f"2B: {career_batting.get('2B', 'n/a')}")
+                stat_lines.append(f"3B: {career_batting.get('3B', 'n/a')}")
+                stat_lines.append(f"SB: {career_batting.get('SB', 'n/a')}")
             if "advanced-batting" in maps:
                 adv_batting = maps["advanced-batting"]
                 stat_lines.append(f"WAR: {adv_batting.get('WAR', 'n/a')}")
