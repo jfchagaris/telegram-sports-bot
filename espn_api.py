@@ -10,6 +10,7 @@ def player_stats(player, league=None, sport=None):
     for row in ids:
         stats_list = []
         stat_lines = []
+        maps = {}
         player_id, player_name, player_sport, player_league = row
         url = f"https://site.web.api.espn.com/apis/common/v3/sports/{player_sport}/{player_league}/athletes/{player_id}/"
         response = requests.get(url).json()
@@ -39,26 +40,20 @@ def player_stats(player, league=None, sport=None):
             adv_stats_repsonce = requests.get(url).json()
             categories = adv_stats_repsonce.get("categories", [])
             for c in categories:
-                if c["name"] == "advanced-batting":
-                    labels = c["labels"]
-                    season_stats = c.get("statistics", [])
-                    if not season_stats:
-                        continue
-                    season_stats = season_stats[-1]["stats"]
-                    stat_map = dict(zip(labels, season_stats))
-                    stat_lines.append(f"WAR: {stat_map.get('WAR', 'n/a')}")
-                    stat_lines.append(f"RC: {stat_map.get('RC', 'n/a')}")
-                    stat_lines.append(f"BB/PA: {stat_map.get('BB/PA', 'n/a')}")
-                    stat_lines.append(f"BB/K: {stat_map.get('BB/K', 'n/a')}")
-                elif c["name"] == "expanded-pitching":
-                    labels = c["labels"]
-                    season_stats = c.get("statistics", [])
-                    if not season_stats:
-                        continue
-                    season_stats = season_stats[-1]["stats"]
-                    stat_map = dict(zip(labels, season_stats))
-                    stat_lines.append(f"K/9: {stat_map.get('K/9', 'n/a')}")
-                    stat_lines.append(f"G/F: {stat_map.get('G/F', 'n/a')}")
+                season_stats = c.get("statistics", [])
+                if not season_stats:
+                    continue
+                maps[c["name"]] = dict(zip(c["labels"], season_stats[-1]["stats"]))
+            if "advanced-batting" in maps:
+                adv_batting = maps["advanced-batting"]
+                stat_lines.append(f"WAR: {adv_batting.get('WAR', 'n/a')}")
+                stat_lines.append(f"RC: {adv_batting.get('RC', 'n/a')}")
+                stat_lines.append(f"BB/PA: {adv_batting.get('BB/PA', 'n/a')}")
+                stat_lines.append(f"BB/K: {adv_batting.get('BB/K', 'n/a')}")
+            if "expanded-pitching" in maps:
+                expand_pitching = maps["expanded-pitching"]
+                stat_lines.append(f"K/9: {expand_pitching.get('K/9', 'n/a')}")
+                stat_lines.append(f"G/F: {expand_pitching.get('G/F', 'n/a')}")
         for i in range(0, len(stat_lines), 3):
             row = " | ".join(stat_lines[i:i+3])
             stats_list.append(row)
