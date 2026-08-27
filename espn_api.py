@@ -59,6 +59,13 @@ def player_stats(player, league=None, sport=None):
                 stat_lines.append(f"RC: {adv_batting.get('RC', 'n/a')}")
                 stat_lines.append(f"BB/PA: {adv_batting.get('BB/PA', 'n/a')}")
                 stat_lines.append(f"BB/K: {adv_batting.get('BB/K', 'n/a')}")
+            if "pitching" in maps:
+                pitching = maps["pitching"]
+                stat_lines.append(f"IP: {pitching.get('IP', 'n/a')}")
+                stat_lines.append(f"BB: {pitching.get('BB', 'n/a')}")
+                stat_lines.append(f"K/BB: {pitching.get('K/BB', 'n/a')}")
+                stat_lines.append(f"WAR: {pitching.get('WAR', 'n/a')}")
+                stat_lines.append(f"SV: {pitching.get('SV', 'n/a')}")
             if "expanded-pitching" in maps:
                 expand_pitching = maps["expanded-pitching"]
                 stat_lines.append(f"K/9: {expand_pitching.get('K/9', 'n/a')}")
