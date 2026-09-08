@@ -35,7 +35,7 @@ def player_stats(player, league=None, sport=None):
             if rank != "n/a":
                 line += f" ({rank})"
             stat_lines.append(line)
-        if player_league == "mlb":
+        if player_league in ("mlb", "nhl"):
             url = f"https://site.web.api.espn.com/apis/common/v3/sports/{player_sport}/{player_league}/athletes/{player_id}/stats"
             adv_stats_repsonce = requests.get(url).json()
             categories = adv_stats_repsonce.get("categories", [])
@@ -44,32 +44,33 @@ def player_stats(player, league=None, sport=None):
                 if not season_stats:
                     continue
                 maps[c["name"]] = dict(zip(c["labels"], season_stats[-1]["stats"]))
-            if "career-batting" in maps:
-                career_batting = maps["career-batting"]
-                stat_lines.append(f"OBP: {career_batting.get('OBP', 'n/a')}")
-                stat_lines.append(f"SLG: {career_batting.get('SLG', 'n/a')}")
-                stat_lines.append(f"R: {career_batting.get('R', 'n/a')}")
-                stat_lines.append(f"H: {career_batting.get('H', 'n/a')}")
-                stat_lines.append(f"2B: {career_batting.get('2B', 'n/a')}")
-                stat_lines.append(f"3B: {career_batting.get('3B', 'n/a')}")
-                stat_lines.append(f"SB: {career_batting.get('SB', 'n/a')}")
-            if "advanced-batting" in maps:
-                adv_batting = maps["advanced-batting"]
-                stat_lines.append(f"WAR: {adv_batting.get('WAR', 'n/a')}")
-                stat_lines.append(f"RC: {adv_batting.get('RC', 'n/a')}")
-                stat_lines.append(f"BB/PA: {adv_batting.get('BB/PA', 'n/a')}")
-                stat_lines.append(f"BB/K: {adv_batting.get('BB/K', 'n/a')}")
-            if "pitching" in maps:
-                pitching = maps["pitching"]
-                stat_lines.append(f"IP: {pitching.get('IP', 'n/a')}")
-                stat_lines.append(f"BB: {pitching.get('BB', 'n/a')}")
-                stat_lines.append(f"K/BB: {pitching.get('K/BB', 'n/a')}")
-                stat_lines.append(f"WAR: {pitching.get('WAR', 'n/a')}")
-                stat_lines.append(f"SV: {pitching.get('SV', 'n/a')}")
-            if "expanded-pitching" in maps:
-                expand_pitching = maps["expanded-pitching"]
-                stat_lines.append(f"K/9: {expand_pitching.get('K/9', 'n/a')}")
-                stat_lines.append(f"G/F: {expand_pitching.get('G/F', 'n/a')}")
+            if player_league == "mlb":
+                if "career-batting" in maps:
+                    career_batting = maps["career-batting"]
+                    stat_lines.append(f"OBP: {career_batting.get('OBP', 'n/a')}")
+                    stat_lines.append(f"SLG: {career_batting.get('SLG', 'n/a')}")
+                    stat_lines.append(f"R: {career_batting.get('R', 'n/a')}")
+                    stat_lines.append(f"H: {career_batting.get('H', 'n/a')}")
+                    stat_lines.append(f"2B: {career_batting.get('2B', 'n/a')}")
+                    stat_lines.append(f"3B: {career_batting.get('3B', 'n/a')}")
+                    stat_lines.append(f"SB: {career_batting.get('SB', 'n/a')}")
+                if "advanced-batting" in maps:
+                    adv_batting = maps["advanced-batting"]
+                    stat_lines.append(f"WAR: {adv_batting.get('WAR', 'n/a')}")
+                    stat_lines.append(f"RC: {adv_batting.get('RC', 'n/a')}")
+                    stat_lines.append(f"BB/PA: {adv_batting.get('BB/PA', 'n/a')}")
+                    stat_lines.append(f"BB/K: {adv_batting.get('BB/K', 'n/a')}")
+                if "pitching" in maps:
+                    pitching = maps["pitching"]
+                    stat_lines.append(f"IP: {pitching.get('IP', 'n/a')}")
+                    stat_lines.append(f"BB: {pitching.get('BB', 'n/a')}")
+                    stat_lines.append(f"K/BB: {pitching.get('K/BB', 'n/a')}")
+                    stat_lines.append(f"WAR: {pitching.get('WAR', 'n/a')}")
+                    stat_lines.append(f"SV: {pitching.get('SV', 'n/a')}")
+                if "expanded-pitching" in maps:
+                    expand_pitching = maps["expanded-pitching"]
+                    stat_lines.append(f"K/9: {expand_pitching.get('K/9', 'n/a')}")
+                    stat_lines.append(f"G/F: {expand_pitching.get('G/F', 'n/a')}")
         for i in range(0, len(stat_lines), 3):
             row = " | ".join(stat_lines[i:i+3])
             stats_list.append(row)
