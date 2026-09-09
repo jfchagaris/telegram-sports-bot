@@ -17,6 +17,9 @@ def player_stats(player, league=None, sport=None):
         display_name = response["athlete"].get("displayName")
         if not display_name:
             display_name = f"{response['athlete'].get('firstName', '')} {response['athlete'].get('lastName', '')}"
+        jersey = response["athlete"].get("jersey", "")
+        team = response["athlete"].get("team", {}).get("shortDisplayName", "")
+        position = response["athlete"].get("position", {}).get("abbreviation", "")
         stats_summary = response["athlete"].get("statsSummary", {})
         if not stats_summary:
             all_stats.append(f"{display_name} has no stats")
@@ -26,7 +29,10 @@ def player_stats(player, league=None, sport=None):
             all_stats.append(f"{display_name} has no stats")
             continue
         year = stats_summary["displayName"]
-        stats_list.append(f"{display_name}\n{year}")
+        stats_list.append(display_name)
+        if jersey or team or position:
+            stats_list.append(f"{jersey} {team} {position}")
+        stats_list.append(year)
         for s in stats:
             stat_name = s["shortDisplayName"]
             display_value = s["displayValue"]
