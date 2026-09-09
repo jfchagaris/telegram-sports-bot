@@ -34,7 +34,7 @@ def player_stats(player, league=None, sport=None):
             stats_list.append(f"{jersey} {team} {position}")
         stats_list.append(year)
         for s in stats:
-            stat_name = s["shortDisplayName"]
+            stat_name = s.get("abbreviation", s["shortDisplayName"])
             display_value = s["displayValue"]
             rank = s.get("rankDisplayValue", "n/a")
             line = f"{stat_name}: {display_value}"
