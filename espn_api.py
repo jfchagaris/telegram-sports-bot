@@ -71,6 +71,19 @@ def player_stats(player, league=None, sport=None):
                     expand_pitching = maps["expanded-pitching"]
                     stat_lines.append(f"K/9: {expand_pitching.get('K/9', 'n/a')}")
                     stat_lines.append(f"G/F: {expand_pitching.get('G/F', 'n/a')}")
+            if player_league == "nhl":
+                if "goaltender" in maps:
+                    goalie = maps["goaltender"]
+                    stat_lines.append(f"SA: {goalie.get('SA', 'n/a')}")
+                    stat_lines.append(f"GS: {goalie.get('GS', 'n/a')}")
+                else:
+                    skater = list(maps.values())[0]
+                    stat_lines.append(f"GP: {skater.get('GP', 'n/a')}")
+                    stat_lines.append(f"PPG: {skater.get('PPG', 'n/a')}")
+                    stat_lines.append(f"PPA: {skater.get('PPA', 'n/a')}")
+                    stat_lines.append(f"TOI/G: {skater.get('TOI/G', 'n/a')}")
+                    stat_lines.append(f"SPCT: {skater.get('SPCT', 'n/a')}")
+                    stat_lines.append(f"PIM: {skater.get('PIM', 'n/a')}")
         for i in range(0, len(stat_lines), 3):
             row = " | ".join(stat_lines[i:i+3])
             stats_list.append(row)
