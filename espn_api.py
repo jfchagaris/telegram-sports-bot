@@ -53,6 +53,8 @@ def player_stats(player, league=None, sport=None):
             if player_league == "mlb":
                 if "career-batting" in maps:
                     career_batting = maps["career-batting"]
+                    stat_lines.append(f"GP: {career_batting.get('GP', 'n/a')}")
+                    stat_lines.append(f"AB: {career_batting.get('AB', 'n/a')}")
                     stat_lines.append(f"OBP: {career_batting.get('OBP', 'n/a')}")
                     stat_lines.append(f"SLG: {career_batting.get('SLG', 'n/a')}")
                     stat_lines.append(f"R: {career_batting.get('R', 'n/a')}")
@@ -72,6 +74,7 @@ def player_stats(player, league=None, sport=None):
                     stat_lines.append(f"BB: {pitching.get('BB', 'n/a')}")
                     stat_lines.append(f"K/BB: {pitching.get('K/BB', 'n/a')}")
                     stat_lines.append(f"WAR: {pitching.get('WAR', 'n/a')}")
+                    stat_lines.append(f"HLD: {pitching.get('HLD', 'n/a')}")
                     stat_lines.append(f"SV: {pitching.get('SV', 'n/a')}")
                 if "expanded-pitching" in maps:
                     expand_pitching = maps["expanded-pitching"]
